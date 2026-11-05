@@ -70,6 +70,13 @@ fn init_deep_link<R: Runtime>(
         config: api.config().clone(),
     });
 
+    #[cfg(target_env = "ohos")]
+    return Ok(DeepLink {
+        app: app.clone(),
+        current: Default::default(),
+        config: api.config().clone(),
+    });
+
     #[cfg(desktop)]
     {
         let args = std::env::args();
@@ -162,13 +169,13 @@ mod imp {
 #[cfg(not(target_os = "android"))]
 mod imp {
     use std::sync::Mutex;
-    #[cfg(target_os = "linux")]
+    #[cfg(all(target_os = "linux", not(target_env = "ohos")))]
     use std::{
         fs::{create_dir_all, File},
         io::Write,
         process::Command,
     };
-    #[cfg(target_os = "linux")]
+    #[cfg(all(target_os = "linux", not(target_env = "ohos")))]
     use tauri::Manager;
     use tauri::{AppHandle, Runtime};
     #[cfg(windows)]
@@ -280,7 +287,7 @@ mod imp {
                 Ok(())
             }
 
-            #[cfg(target_os = "linux")]
+            #[cfg(all(target_os = "linux", not(target_env = "ohos")))]
             {
                 let bin = tauri::utils::platform::current_exe()?;
                 let file_name = format!(
@@ -363,7 +370,7 @@ mod imp {
                 Ok(())
             }
 
-            #[cfg(not(any(windows, target_os = "linux")))]
+            #[cfg(not(any(windows, all(target_os = "linux", not(target_env = "ohos")))))]
             Err(crate::Error::UnsupportedPlatform)
         }
 
@@ -391,7 +398,7 @@ mod imp {
                 Ok(())
             }
 
-            #[cfg(target_os = "linux")]
+            #[cfg(all(target_os = "linux", not(target_env = "ohos")))]
             {
                 let mimeapps_path = self.app.path().config_dir()?.join("mimeapps.list");
                 let mut mimeapps = ini::Ini::load_from_file(&mimeapps_path)?;
@@ -417,7 +424,7 @@ mod imp {
                 Ok(())
             }
 
-            #[cfg(not(any(windows, target_os = "linux")))]
+            #[cfg(not(any(windows, all(target_os = "linux", not(target_env = "ohos")))))]
             Err(crate::Error::UnsupportedPlatform)
         }
 
@@ -446,7 +453,7 @@ mod imp {
 
                 Ok(registered_cmd == format!("\"{exe}\" \"%1\""))
             }
-            #[cfg(target_os = "linux")]
+            #[cfg(all(target_os = "linux", not(target_env = "ohos")))]
             {
                 let file_name = format!(
                     "{}-handler.desktop",
@@ -468,7 +475,7 @@ mod imp {
                 Ok(String::from_utf8_lossy(&output.stdout).contains(&file_name))
             }
 
-            #[cfg(not(any(windows, target_os = "linux")))]
+            #[cfg(not(any(windows, all(target_os = "linux", not(target_env = "ohos")))))]
             Err(crate::Error::UnsupportedPlatform)
         }
     }

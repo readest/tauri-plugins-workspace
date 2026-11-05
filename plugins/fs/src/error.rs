@@ -24,7 +24,7 @@ pub enum Error {
     #[cfg(feature = "watch")]
     #[error(transparent)]
     Watch(#[from] notify::Error),
-    #[cfg(target_os = "android")]
+    #[cfg(any(target_os = "android", target_env = "ohos"))]
     #[error(transparent)]
     PluginInvoke(#[from] tauri::plugin::mobile::PluginInvokeError),
     #[error("URL is not a valid path")]

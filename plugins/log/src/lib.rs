@@ -606,6 +606,10 @@ impl Builder {
                         );
                     }
                 }),
+                #[cfg(target_env = "ohos")]
+                TargetKind::Stdout | TargetKind::Stderr => {
+                    fern::Output::call(|record| eprintln!("{}", record.args()))
+                }
                 #[cfg(desktop)]
                 TargetKind::Stdout => std::io::stdout().into(),
                 #[cfg(desktop)]
